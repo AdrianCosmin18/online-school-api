@@ -1,6 +1,7 @@
 package com.example.onlineschoolapp.services;
 
 import com.example.onlineschoolapp.exceptions.CourseNameAlreadyExists;
+import com.example.onlineschoolapp.exceptions.CourseNotFoundByDepartment;
 import com.example.onlineschoolapp.exceptions.CourseNotFoundById;
 import com.example.onlineschoolapp.exceptions.NoCourseException;
 import com.example.onlineschoolapp.models.Course;
@@ -8,6 +9,7 @@ import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ public class CourseService {
     public CourseService(CourseRepo courseRepo) {//injectare prin constructor
         this.courseRepo = courseRepo;
     }
+
 
     public List<Course> getCourses(){
 
@@ -48,6 +51,57 @@ public class CourseService {
         else{
             courseRepo.save(c);
         }
+    }
 
+    public void deleteCourseById(long id){
+        Optional<Course> course = courseRepo.findById(id);
+        if (course.equals(Optional.empty())){
+            throw new CourseNotFoundById(id);
+        }
+        else{
+            courseRepo.deleteById(id);
+        }
+    }
+
+    public List<Course> getCoursesByDepartment(String department){
+        Optional<List<Course>> courses = courseRepo.getCoursesByDepartment(department);
+        if (courses.get().size() == 0){
+            throw new CourseNotFoundByDepartment(department);
+        }
+        else{
+            return courses.get();
+        }
+    }
+
+    public void updateCourseById(Course c, long id){
+        Optional<Course> existingCourse = courseRepo.findById(id);
+        if (existingCourse.equals(Optional.empty())){
+            throw new CourseNotFoundById(id);
+        }
+        else{
+            courseRepo.updateCourseById(c.getName(), c.getDepartment(), id);
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
