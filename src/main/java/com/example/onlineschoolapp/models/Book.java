@@ -48,7 +48,6 @@ public class Book {
     private LocalDate createdAt;
 
     public Book(String name, LocalDate createdAt) {
-        this.student = student;
         this.name = name;
         this.createdAt = createdAt;
     }

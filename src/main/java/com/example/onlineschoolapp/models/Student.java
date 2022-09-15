@@ -66,6 +66,7 @@ public class Student {
 
     public void addBook(Book book){
         this.books.add(book);
+        book.setStudent(this);
     }
 
     public void removeBook(Book book){
@@ -74,6 +75,9 @@ public class Student {
 
     public void addCourse(Course c){
         this.courses.add(c);
+//        c.addStudent(this);
+
+
     }
 
     public void removeCourse(Course c){

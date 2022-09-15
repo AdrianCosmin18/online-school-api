@@ -38,6 +38,11 @@ public class Course {
         this.department = department;
     }
 
+    public void addStudent(Student s){
+        this.students.add(s);
+    }
+
+
     @Override
     public String toString(){
         String text = "";
