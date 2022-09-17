@@ -1,5 +1,6 @@
 package com.example.onlineschoolapp.services;
 
+import com.example.onlineschoolapp.dto.CourseDTO;
 import com.example.onlineschoolapp.exceptions.CourseNameAlreadyExists;
 import com.example.onlineschoolapp.exceptions.CourseNotFoundByDepartment;
 import com.example.onlineschoolapp.exceptions.CourseNotFoundById;
@@ -42,14 +43,14 @@ public class CourseService {
     }
 
 
-    public void addCourse(Course c){
+    public void addCourse(CourseDTO c){
 
         Optional<Course> existingCourse = courseRepo.getCourseByName(c.getName());
-        if(existingCourse.equals(Optional.empty())){
+        if(!existingCourse.equals(Optional.empty())){
             throw new CourseNameAlreadyExists();
         }
         else{
-            courseRepo.save(c);
+            courseRepo.save(new Course(c.getName(), c.getDepartment()));
         }
     }
 
@@ -73,7 +74,7 @@ public class CourseService {
         }
     }
 
-    public void updateCourseById(Course c, long id){
+    public void updateCourseById(CourseDTO c, long id){
         Optional<Course> existingCourse = courseRepo.findById(id);
         if (existingCourse.equals(Optional.empty())){
             throw new CourseNotFoundById(id);
@@ -81,6 +82,11 @@ public class CourseService {
         else{
             courseRepo.updateCourseById(c.getName(), c.getDepartment(), id);
         }
+//        this.courseRepo.findById(id).map(course -> {
+//            course.setName(c.getName());
+//            course.setDepartment(c.getDepartment());
+//            return courseRepo.save(course);
+//        }).orElseThrow(()->new CourseNotFoundById(id));
     }
 }
 

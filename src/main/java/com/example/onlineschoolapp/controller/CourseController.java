@@ -1,5 +1,6 @@
 package com.example.onlineschoolapp.controller;
 
+import com.example.onlineschoolapp.dto.CourseDTO;
 import com.example.onlineschoolapp.models.Course;
 import com.example.onlineschoolapp.services.CourseService;
 import lombok.Value;
@@ -31,14 +32,12 @@ public class CourseController {
         return new ResponseEntity<Course>(this.courseService.getCourseById(id), HttpStatus.OK);
     }
 
-    //eroare
     @PostMapping("/add-course")
-    public ResponseEntity<String> addCourse(@Valid @RequestBody Course c){
+    public ResponseEntity<String> addCourse(@Valid @RequestBody CourseDTO c){
         this.courseService.addCourse(c);
         return new ResponseEntity<>("added course",HttpStatus.CREATED);
     }
 
-    //eroare
     @DeleteMapping("/delete-by-id/{id}")
     public ResponseEntity<String> deleteCourseById(@Valid @PathVariable long id){
         this.courseService.deleteCourseById(id);
@@ -50,9 +49,8 @@ public class CourseController {
         return new ResponseEntity<>(this.courseService.getCoursesByDepartment(department), HttpStatus.OK);
     }
 
-    //eroare
     @PutMapping("/update-course-by-id/{id}")
-    public ResponseEntity<String> updateCourseById(@Valid @PathVariable long id, @Valid @RequestBody Course c){
+    public ResponseEntity<String> updateCourseById(@Valid @PathVariable long id, @Valid @RequestBody CourseDTO c){
         this.courseService.updateCourseById(c, id);
         return new ResponseEntity<>("updated course", HttpStatus.OK);
     }

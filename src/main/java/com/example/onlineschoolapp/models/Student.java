@@ -5,14 +5,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,14 +67,12 @@ public class Student {
     }
 
     public void removeBook(Book book){
-        this.books.remove(book.getId());
+
+        this.books.remove(book);
     }
 
     public void addCourse(Course c){
         this.courses.add(c);
-//        c.addStudent(this);
-
-
     }
 
     public void removeCourse(Course c){
