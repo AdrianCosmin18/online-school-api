@@ -9,6 +9,7 @@ import com.example.onlineschoolapp.models.Student;
 import com.example.onlineschoolapp.repository.BookRepo;
 import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -146,5 +147,26 @@ public class StudentAndBookService {
         }
         student.get().addCourse(course.get());
         studentRepo.save(student.get());
+    }
+
+    public void deleteCourseFromStudent(long studentId, String courseName){
+        Optional<Student> student = studentRepo.findById(studentId);
+        if (student.equals(Optional.empty())){
+            throw new StudentNotFoundById(studentId);
+        }
+        Optional<Course> course = courseRepo.getCourseByName(courseName);
+        if (course.equals(Optional.empty())){
+            throw new BookNotFoundByName(courseName);
+        }
+        List<Course> studentCourses = student.get().getCourses();
+        System.out.println(studentCourses);
+        if (studentCourses.stream().anyMatch(c -> c.getName().equals(courseName))){
+            student.get().removeCourse(course.get());
+            studentRepo.save(student.get());
+        }
+        else{
+            throw new StudentNotHavingCourseException();
+        }
+
     }
 }

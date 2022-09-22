@@ -83,4 +83,10 @@ public class StudentController {
         this.service.addCourseToStudent(studentId, courseName);
         return new ResponseEntity<>("course added to student", HttpStatus.OK);
     }
+
+    @DeleteMapping("/delete-course-from-student-by-name/{studentId}")
+    public ResponseEntity<String> deleteCourseFromStudentByName(@PathVariable long studentId, @RequestParam String name){
+        this.service.deleteCourseFromStudent(studentId, name);
+        return new ResponseEntity<>("course deleted from student", HttpStatus.ACCEPTED);
+    }
 }

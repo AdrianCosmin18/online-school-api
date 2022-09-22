@@ -30,7 +30,7 @@ public class Course {
     private String department;
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.EAGER)//
-    @JsonBackReference//
+    @JsonBackReference
     private List<Student> students = new ArrayList<>();
 
     public Course(String name, String department) {
