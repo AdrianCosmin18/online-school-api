@@ -4,6 +4,7 @@ package com.example.onlineschoolapp.controller;
 import com.example.onlineschoolapp.dto.BookDTO;
 import com.example.onlineschoolapp.dto.StudentDTO;
 import com.example.onlineschoolapp.models.Book;
+import com.example.onlineschoolapp.models.Course;
 import com.example.onlineschoolapp.models.Student;
 import com.example.onlineschoolapp.services.StudentAndBookService;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("online-school/api/v1/students")
@@ -89,4 +91,53 @@ public class StudentController {
         this.service.deleteCourseFromStudent(studentId, name);
         return new ResponseEntity<>("course deleted from student", HttpStatus.ACCEPTED);
     }
+
+    //1)
+    @GetMapping("/get-course-with-most-enrollment-of-students")
+    public ResponseEntity<Course> getMostPopularCourse(){
+        return new ResponseEntity<>(service.mostPopularCourse(), HttpStatus.OK);
+    }
+
+    //2)
+    @GetMapping("/get-course-with-most-less-enrollment-of-students")
+    public ResponseEntity<Course> getMostUnpopularCourse(){
+        return new ResponseEntity<>(service.mostUnpopularCourse(), HttpStatus.OK);
+    }
+
+    //3)
+    @GetMapping("/get-student-who-rent-the-most-book")
+    public ResponseEntity<Student> getStudentWithTheMostBooks(){
+        return new ResponseEntity<>(service.studentWithTheMostBooks(), HttpStatus.OK);
+    }
+
+    //4)
+    @GetMapping("/get-student-who-rent-the-fewest-book")
+    public ResponseEntity<Student> getStudentWithTheFewestBooks(){
+        return new ResponseEntity<>(service.studentWithTheFewestBooks(), HttpStatus.OK);
+    }
+
+    //6)
+    @GetMapping("/get-student-who-registered-to-the-most-courses")
+    public ResponseEntity<Student> getStudentWithTheMostCourses(){
+        return new ResponseEntity<>(service.studentWithTheMostCourses(), HttpStatus.OK);
+    }
+
+    //7)
+    @GetMapping("/get-year-with-most-rent-books")
+    public ResponseEntity<Integer> getYearWithMostRentedBooks(){
+        return new ResponseEntity<>(service.yearWithMostRentedBooks(), HttpStatus.OK);
+    }
+
+    //8)
+    @GetMapping("/get-year-with-fewest-rent-books")
+    public ResponseEntity<Integer> getYearWithFewestRentedBooks(){
+        return new ResponseEntity<>(service.yearWithFewestRentedBooks(), HttpStatus.OK);
+    }
+
+    //9)
+    @GetMapping("/get-students-enrolled-to-a-course")
+    public ResponseEntity<Set<Student>> getStudentsEnrolledToCourse(@RequestParam(value = "courseName") String courseName){
+        return new ResponseEntity<>(service.getStudentsEnrolledToCourse(courseName), HttpStatus.OK);
+    }
+
 }

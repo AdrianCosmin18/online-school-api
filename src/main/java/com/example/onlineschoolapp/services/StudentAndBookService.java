@@ -13,8 +13,7 @@ import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StudentAndBookService {
@@ -145,6 +144,12 @@ public class StudentAndBookService {
         if (student.equals(Optional.empty())){
             throw new StudentNotFoundById(id);
         }
+
+        //daca exista deja un curs cu acelasi nume in orarul lui
+        if(student.get().getCourses().stream().filter(c -> c.getName().equals(courseName)).toList().size() > 0){
+            throw new AlreadyHasThisCourseException();
+        }
+
         student.get().addCourse(course.get());
         studentRepo.save(student.get());
     }
@@ -167,6 +172,246 @@ public class StudentAndBookService {
         else{
             throw new StudentNotHavingCourseException();
         }
-
     }
+
+    //1) cursul cu cei mai multi studenti inscrisi la el
+    //nu stiu cum sa o fac direct pe enrollment
+    public Course mostPopularCourse(){
+
+        Map<Course, Integer> map = new HashMap<>();
+        List<Student> students = getAllStudents();
+        for(Student s: students){
+
+            List<Course> courses = s.getCourses();
+            for(Course c : courses){
+
+                if (map.containsKey(c)){
+
+                    map.put(c, map.get(c) + 1);
+                }
+                else{
+                    map.put(c, 1);
+                }
+            }
+        }
+
+        if (map.size() == 0){
+            throw new NoEnrollToAnyCourseException();
+        }
+
+        Course maxCourse = null;
+        int maxValue = 0;
+        for(Map.Entry<Course, Integer> entry : map.entrySet()){
+            if(entry.getValue() > maxValue){
+                maxValue = entry.getValue();
+                maxCourse = entry.getKey();
+            }
+        }
+        System.out.println( "MAXIMUM VALUE : " + maxValue);
+        return maxCourse;
+    }
+
+    //2) cursul cu cei mai putini inscrisi la el
+    //nu stiu cum sa o fac direct pe enrollment
+    public Course mostUnpopularCourse(){
+
+        Map<Course, Integer> map = new HashMap<>();
+        List<Student> students = getAllStudents();
+        for(Student s: students){
+
+            List<Course> courses = s.getCourses();
+            for(Course c : courses){
+
+                if (map.containsKey(c)){
+
+                    map.put(c, map.get(c) + 1);
+                }
+                else{
+                    map.put(c, 1);
+                }
+            }
+        }
+
+        if (map.size() == 0){
+            throw new NoEnrollToAnyCourseException();
+        }
+
+        Course minCourse = null;
+        int minValue = 99999;
+        for(Map.Entry<Course, Integer> entry : map.entrySet()){
+            if(entry.getValue() < minValue){
+                minValue = entry.getValue();
+                minCourse = entry.getKey();
+            }
+        }
+        System.out.println( "Minimum VALUE : " + minValue);
+        return minCourse;
+    }
+
+    //3) studentul care are cele mai multe carti
+    //cum fac direct pe jpql
+    public Student studentWithTheMostBooks(){
+
+        List<Student> students = getAllStudents();
+
+        Student maxStudent = null;
+        int maxBooks = -1;
+        for(Student s : students){
+            if (s.getBooks().size() > maxBooks){
+                maxBooks = s.getBooks().size();
+                maxStudent = s;
+            }
+        }
+
+        if (maxBooks == -1){
+            throw new NoStudentHasBooksException();
+        }
+
+        System.out.println("MAXBOOKS: " + maxBooks);
+        return maxStudent;
+    }
+
+    //4) studentul cu cele mai putine carti
+    //cum fac direct pe jpql
+    //studentul cu cele mai putin carti dar mai mult decat una
+    public Student studentWithTheFewestBooks(){
+
+        List<Student> students = getAllStudents();
+
+        Student minStudent = null;
+        int minBooks = 999999999;
+        for(Student s : students){
+            if (s.getBooks().size() < minBooks && s.getBooks().size() > 0){
+                minBooks = s.getBooks().size();
+                minStudent = s;
+            }
+        }
+
+        if (minStudent == null){
+            throw new NoStudentHasBooksException();
+        }
+
+        System.out.println("MINBOOKS: " + minBooks);
+        return minStudent;
+    }
+
+    //5) autorul care apare de cele mai multe ori => daca apar mai multi de un nr maxim de ori => afis pe primul
+
+    //6) studentul care e inscris la cele mai multe cursuri
+    public Student studentWithTheMostCourses(){
+
+        List<Student> students = getAllStudents();
+
+        Student maxStudent = null;
+        int maxCourses = -1;
+        for(Student s : students){
+            if (s.getCourses().size() > maxCourses){
+                maxCourses = s.getCourses().size();
+                maxStudent = s;
+            }
+        }
+
+        if (maxCourses == -1){
+            throw new NoStudentHasCoursesException();
+        }
+
+        System.out.println("MAXCourses: " + maxCourses);
+        System.out.println(maxStudent.getCourses());
+        return maxStudent;
+    }
+
+    // 7)anul in care s-au inchiriat cele mai multe carti
+    public Integer yearWithMostRentedBooks(){
+
+        List<Book> books = getAllBooks();
+        if(books.size() == 0){
+
+            throw new NoBooksFoundException("there is no book rented by any student");
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for(Book b : books){
+            if (map.containsKey(b.getCreatedAt().getYear())){
+
+                map.put(b.getCreatedAt().getYear(), map.get(b.getCreatedAt().getYear()) + 1);
+            }
+            else{
+                map.put(b.getCreatedAt().getYear(), 1);
+            }
+        }
+
+        int maxYear = 0;
+        int maxValue = 0;
+        Iterator<Map.Entry<Integer, Integer>> itr = map.entrySet().iterator();
+        while (itr.hasNext()){
+            Map.Entry<Integer, Integer> entry = itr.next();
+            if(entry.getValue() > maxValue){
+                maxYear = entry.getKey();
+                maxValue = entry.getValue();
+            }
+        }
+
+        return maxYear;
+    }
+
+    // 8)anul in care s-au inchiriat cele mai putine carti
+    public Integer yearWithFewestRentedBooks(){
+
+        List<Book> books = getAllBooks();
+        if(books.size() == 0){
+
+            throw new NoBooksFoundException("there is no book rented by any student");
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for(Book b : books){
+            if (map.containsKey(b.getCreatedAt().getYear())){
+
+                map.put(b.getCreatedAt().getYear(), map.get(b.getCreatedAt().getYear()) + 1);
+            }
+            else{
+                map.put(b.getCreatedAt().getYear(), 1);
+            }
+        }
+
+        int minYear = 9999;
+        int minValue = 999999999;
+        Iterator<Map.Entry<Integer, Integer>> itr = map.entrySet().iterator();
+        while (itr.hasNext()){
+            Map.Entry<Integer, Integer> entry = itr.next();
+            if(entry.getValue() < minValue){
+                minYear = entry.getKey();
+                minValue = entry.getValue();
+            }
+        }
+
+        System.out.println("MinYearValue:" + minValue);
+        return minYear;
+    }
+
+    // 9)afisare in ordine alfabetica dupa nume a studentiilor inscrisi la un anumit curs (nume curs)
+    public Set<Student> getStudentsEnrolledToCourse(String courseName){
+
+        Set<Student> students = new TreeSet<>(Comparator.comparing(Student::getLastName));
+        Optional<Course> course = courseRepo.getCourseByName(courseName);
+        if (course.equals(Optional.empty())){
+            throw new CourseNotFoundByName(courseName);
+        }
+        students.addAll(course.get().getStudents());
+        return students;
+    }
+
+    // 10)cate cursuri are fiecare departament si care sunt
+
+    // 11)care departament are cei mai multi studenti inscrisi
+
+    // 12)nr de studenti al unui departament (nume departament)
+
+    // 13)media de varsta pentru fiecare curs (nume curs)
+
+    // 14)de cate a fost imprumutata o carte (pe baza numelui)
+
+    // 15)data in care un anumit elev a imprumutat o carte(input: nume carte)
+
+    // 16)de cate ori intr-un an a imprumutat un elev carti(input an)
 }

@@ -2,6 +2,7 @@ package com.example.onlineschoolapp.repository;
 
 import com.example.onlineschoolapp.models.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
@@ -9,4 +10,7 @@ import java.util.Optional;
 public interface StudentRepo extends JpaRepository<Student, Long> {
 
     Optional<Student> getStudentByEmail(String email);
+
+    @Query(value = "select * from Student s where max", nativeQuery = true)
+    Integer getSmartestStudent();
 }
