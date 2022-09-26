@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -138,6 +139,18 @@ public class StudentController {
     @GetMapping("/get-students-enrolled-to-a-course")
     public ResponseEntity<Set<Student>> getStudentsEnrolledToCourse(@RequestParam(value = "courseName") String courseName){
         return new ResponseEntity<>(service.getStudentsEnrolledToCourse(courseName), HttpStatus.OK);
+    }
+
+    //10)
+    @GetMapping("/get-department-and-its-courses")
+    public ResponseEntity<Map<String, List<String>>> getDepartmentAndItsCourses(){
+        return new ResponseEntity<>(service.getDepartmentAndItsCourses(), HttpStatus.OK);
+    }
+
+    //11)
+    @GetMapping("/get-department-with-most-enrolled-students")
+    public ResponseEntity<String> getDepartmentWithMostEnrolledStudents(){
+        return new ResponseEntity<>(service.getDepartmentWithMostEnrolledStudents(), HttpStatus.OK);
     }
 
 }

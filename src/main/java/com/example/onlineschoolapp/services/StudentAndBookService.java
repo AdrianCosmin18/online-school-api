@@ -401,9 +401,60 @@ public class StudentAndBookService {
         return students;
     }
 
-    // 10)cate cursuri are fiecare departament si care sunt
+    // 10)cursurile fiecarui departament si numele lor
+    public Map<String, List<String>> getDepartmentAndItsCourses(){
+
+        Map<String, List<String>> map = new HashMap<>();
+        List<Course> courses = courseRepo.findAll();
+        if (courses.size() == 0){
+
+            throw new NoCoursesFoundException();
+        }
+
+        for (Course course : courses){
+
+            if (!map.containsKey(course.getDepartment())){
+                map.put(course.getDepartment(), new ArrayList<>());
+            }
+            map.get(course.getDepartment()).add(course.getName());
+        }
+        return map;
+    }
 
     // 11)care departament are cei mai multi studenti inscrisi
+    public String getDepartmentWithMostEnrolledStudents(){
+
+        Map<String, Integer> departmentNumberStudentPair = new HashMap<>();
+
+        Map<String, List<String>> map = getDepartmentAndItsCourses();
+        for(Map.Entry<String, List<String>> entry : map.entrySet()){
+
+            List<String> courseNames = entry.getValue();
+            for (String courseName: courseNames){
+
+                Course course = courseRepo.getCourseByName(courseName).get();
+                if (!departmentNumberStudentPair.containsKey(course.getDepartment())){
+                    departmentNumberStudentPair.put(course.getDepartment(), course.getStudents().size());
+                }
+                else{
+                    departmentNumberStudentPair.put(course.getDepartment(), departmentNumberStudentPair.get(course.getDepartment()) + course.getStudents().size());
+                }
+            }
+        }
+
+        System.out.println(departmentNumberStudentPair);
+        String maxDepartment = "";
+        int maxNumber = 0;
+        for(Map.Entry<String, Integer> entry : departmentNumberStudentPair.entrySet()){
+
+            if (entry.getValue() > maxNumber){
+                maxDepartment = entry.getKey();
+                maxNumber = entry.getValue();
+            }
+        }
+
+        return maxDepartment + ": " + maxNumber + " students";
+    }
 
     // 12)nr de studenti al unui departament (nume departament)
 
