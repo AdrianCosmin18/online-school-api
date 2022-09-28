@@ -9,10 +9,8 @@ import com.example.onlineschoolapp.models.Student;
 import com.example.onlineschoolapp.repository.BookRepo;
 import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
-import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 @Service
@@ -457,6 +455,32 @@ public class StudentAndBookService {
     }
 
     // 12)nr de studenti al unui departament (nume departament)
+    public Integer getNumberStudentsOfAnDepartment(String department){
+
+        Optional<List<Course>> courses = courseRepo.getCoursesByDepartment(department);
+        if (courses.get().isEmpty()){
+            throw new CourseNotFoundByDepartment(department);
+        }
+
+        int numberOfStudents = 0;
+
+        Map<String, List<String>> map = getDepartmentAndItsCourses();
+        for(Map.Entry<String, List<String>> entry : map.entrySet()){
+
+            if (entry.getKey().equals(department)){
+
+                List<String> coursesName = entry.getValue();
+                for (String courseName: coursesName){
+
+                    Course c = courseRepo.getCourseByName(courseName).get();
+                    numberOfStudents += c.getStudents().size();
+                }
+                break;
+            }
+        }
+        return numberOfStudents;
+    }
+
 
     // 13)media de varsta pentru fiecare curs (nume curs)
 
@@ -465,4 +489,17 @@ public class StudentAndBookService {
     // 15)data in care un anumit elev a imprumutat o carte(input: nume carte)
 
     // 16)de cate ori intr-un an a imprumutat un elev carti(input an)
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

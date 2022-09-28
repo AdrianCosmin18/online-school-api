@@ -41,10 +41,7 @@ public class Book {
     private String name;
 
     @NotBlank(message = "Local date is required")
-    @Column(
-            name = "created_at",
-            columnDefinition = "varchar(50)"
-    )
+    @Column(name = "created_at", columnDefinition = "varchar(50)")
     private LocalDate createdAt;
 
     public Book(String name, LocalDate createdAt) {

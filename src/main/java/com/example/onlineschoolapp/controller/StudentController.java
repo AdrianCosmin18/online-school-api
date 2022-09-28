@@ -153,4 +153,10 @@ public class StudentController {
         return new ResponseEntity<>(service.getDepartmentWithMostEnrolledStudents(), HttpStatus.OK);
     }
 
+    //12
+    @GetMapping("/get-nr-students-from-department")
+    public ResponseEntity<Integer> getNumberStudentsOfAnDepartment(@RequestParam(value = "nameDepartment") String department){
+        return new ResponseEntity<>(this.service.getNumberStudentsOfAnDepartment(department), HttpStatus.OK);
+    }
+
 }

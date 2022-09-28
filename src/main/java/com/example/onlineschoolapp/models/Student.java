@@ -48,10 +48,10 @@ public class Student {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "enrolled_courses",
                 joinColumns = {@JoinColumn(name = "student_id")},
-                inverseJoinColumns = {@JoinColumn(name = "course_id")}
-    )
+                inverseJoinColumns = {@JoinColumn(name = "course_id")})
     @JsonManagedReference
     private List<Course> courses = new ArrayList<>();
+
 
 
     public Student(String firstName, String lastName, String email, Integer age) {
