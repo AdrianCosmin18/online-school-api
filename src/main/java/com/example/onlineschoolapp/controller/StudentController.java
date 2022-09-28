@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,7 +166,23 @@ public class StudentController {
         return new ResponseEntity<>(this.service.getAverageAgeForCourse(name), HttpStatus.OK);
     }
 
+    //14)
+    @GetMapping("get-number-books-rented-by-student-email")
+    public ResponseEntity<Integer> getNumberBooksRentedByStudent(@RequestParam(value = "email") String email){
+        return new ResponseEntity<>(this.service.getNumberBooksRentedByStudent(email), HttpStatus.OK);
+    }
 
+    //15)
+    @GetMapping("/get-rented-book-date")
+    public ResponseEntity<LocalDate> getRentedBookDate(@RequestParam(value = "bookTitle")String bookTitle){
+        return new ResponseEntity<>(this.service.getRentedBookDate(bookTitle), HttpStatus.OK);
+    }
+
+    //16)
+    @GetMapping("/get-nr-books-rented-in-an-year/{studentId}")
+    public ResponseEntity<Integer> getBookNumberRentedInAnYear(@PathVariable long studentId, @RequestParam(value = "year") Integer year){
+        return new ResponseEntity<>(this.service.getBookNumberRentedInAnYear(year, studentId), HttpStatus.OK);
+    }
 
 
 

@@ -11,6 +11,7 @@ import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static java.util.stream.Collectors.averagingDouble;
@@ -503,11 +504,45 @@ public class StudentAndBookService {
         return averageAge;
     }
 
-    // 14)de cate a fost imprumutata o carte (pe baza numelui)
+    // 14)de cate ori imprumutat un student carti (email)
+    public Integer getNumberBooksRentedByStudent(String email){
+
+        Optional<Student> student = studentRepo.getStudentByEmail(email);
+        if (!student.isPresent()){
+            throw new StudentNotFoundByEmail(email);
+        }
+
+        int nr = student.get().getBooks().size();
+        if (nr == 0){
+            throw new StudentNotRentBookEception();
+        }
+
+        return nr;
+    }
 
     // 15)data in care un anumit elev a imprumutat o carte(input: nume carte)
+    public LocalDate getRentedBookDate(String bookName){
+        Optional<Book> book = bookRepo.getBookByName(bookName);
+        if (!book.isPresent()){
+            throw new BookNotFoundByName(bookName);
+        }
 
-    // 16)de cate ori intr-un an a imprumutat un elev carti(input an)
+        return book.get().getCreatedAt();
+    }
+
+    // 16)de cate ori intr-un an a imprumutat un elev carti(input an, idStudent)
+    public Integer getBookNumberRentedInAnYear(Integer year, long studentId){
+
+        Optional<Student> student = studentRepo.findById(studentId);
+        if (!student.isPresent()){
+            throw new StudentNotFoundById(studentId);
+        }
+
+        List<Book> books = student.get().getBooks();
+        int nr = (int) books.stream().filter(book -> book.getCreatedAt().getYear() == year).count();
+
+        return nr;
+    }
 
 
 
