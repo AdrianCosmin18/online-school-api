@@ -11,6 +11,4 @@ public class CourseDTO {
 
     private String name;
     private String department;
-
-
 }

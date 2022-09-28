@@ -159,4 +159,30 @@ public class StudentController {
         return new ResponseEntity<>(this.service.getNumberStudentsOfAnDepartment(department), HttpStatus.OK);
     }
 
+    //13
+    @GetMapping("/get-average-age-for-a-course")
+    public ResponseEntity<Double> getAverageAgeForCourse(@RequestParam(value = "courseName") String name){
+        return new ResponseEntity<>(this.service.getAverageAgeForCourse(name), HttpStatus.OK);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

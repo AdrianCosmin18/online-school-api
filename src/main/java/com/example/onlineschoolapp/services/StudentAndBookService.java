@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.averagingDouble;
+
 @Service
 public class StudentAndBookService {
 
@@ -483,6 +485,23 @@ public class StudentAndBookService {
 
 
     // 13)media de varsta pentru fiecare curs (nume curs)
+    public Double getAverageAgeForCourse(String courseName){
+
+        Optional<Course> course = courseRepo.getCourseByName(courseName);
+        if (!course.isPresent()){
+            throw new CourseNotFoundByName(courseName);
+        }
+
+        List<Student> students = course.get().getStudents();
+        if (students.isEmpty()){
+            throw new NoStudentsException("at this course didn't enrolled any student yet");
+        }
+        double averageAge = students
+                .stream()
+                .collect(averagingDouble(Student::getAge));
+
+        return averageAge;
+    }
 
     // 14)de cate a fost imprumutata o carte (pe baza numelui)
 

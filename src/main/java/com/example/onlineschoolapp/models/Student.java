@@ -38,7 +38,7 @@ public class Student {
     private String email;
 
     @Column(name = "age", nullable = false)
-    private Integer age;
+    private Double age;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference//arata lista de carti
@@ -54,7 +54,7 @@ public class Student {
 
 
 
-    public Student(String firstName, String lastName, String email, Integer age) {
+    public Student(String firstName, String lastName, String email, Double age) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
