@@ -2,6 +2,7 @@ package com.example.onlineschoolapp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity(name = "Course")
 @Table(name = "course")
 public class Course {
@@ -51,5 +54,16 @@ public class Course {
         text += "department:" + department + "}";
 
         return text;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        Course course = (Course) o;
+        return course.getName().equals(this.getName()) && course.getDepartment().equals(this.getDepartment());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getDepartment());
     }
 }
