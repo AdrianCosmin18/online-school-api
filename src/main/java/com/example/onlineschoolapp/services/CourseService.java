@@ -37,7 +37,7 @@ public class CourseService {
 
     public Course getCourseById(long id){
         Optional<Course> course = courseRepo.findById(id);
-        if (course.equals(Optional.empty())==false)
+        if (course.isPresent())
             return course.get();
         throw new CourseNotFoundById(id);
     }
@@ -56,7 +56,7 @@ public class CourseService {
 
     public void deleteCourseById(long id){
         Optional<Course> course = courseRepo.findById(id);
-        if (course.equals(Optional.empty())){
+        if (!course.isPresent()){
             throw new CourseNotFoundById(id);
         }
         else{
@@ -76,7 +76,7 @@ public class CourseService {
 
     public void updateCourseById(CourseDTO c, long id){
         Optional<Course> existingCourse = courseRepo.findById(id);
-        if (existingCourse.equals(Optional.empty())){
+        if (!existingCourse.isPresent()){
             throw new CourseNotFoundById(id);
         }
         else{

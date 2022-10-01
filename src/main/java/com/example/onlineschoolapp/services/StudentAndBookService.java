@@ -43,7 +43,7 @@ public class StudentAndBookService {
     public Student getStudentById(long id){
 
         Optional<Student> student = studentRepo.findById(id);
-        if(student.equals(Optional.empty())){
+        if(!student.isPresent()){
             throw new StudentNotFoundById(id);
         }
         else{
@@ -63,14 +63,14 @@ public class StudentAndBookService {
 
     public Book getBookById(long id){
         Optional<Book> book = bookRepo.findById(id);
-        if (book.equals(Optional.empty()))
+        if (!book.isPresent())
             throw new BookNotFoundById(id);
         return book.get();
     }
 
     public void addStudent(StudentDTO s){
         Optional<Student> existingStudent = studentRepo.getStudentByEmail(s.getEmail());
-        if (!existingStudent.equals(Optional.empty()))
+        if (existingStudent.isPresent())
             throw new StudentEmailAlreadyExistsException(s.getEmail());
         studentRepo.save(new Student(s.getFirstName(), s.getLastName(), s.getEmail(), s.getAge()));
     }
@@ -543,17 +543,5 @@ public class StudentAndBookService {
 
         return nr;
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

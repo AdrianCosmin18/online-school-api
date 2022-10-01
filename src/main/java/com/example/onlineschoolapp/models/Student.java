@@ -3,6 +3,7 @@ package com.example.onlineschoolapp.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
@@ -17,6 +18,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity(name = "Student")
 @Table(name = "student", uniqueConstraints = {@UniqueConstraint(name = "email_unique", columnNames = "email")})
 public class Student {
