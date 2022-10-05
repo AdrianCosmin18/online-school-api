@@ -296,8 +296,6 @@ public class StudentAndBookService {
         return minStudent;
     }
 
-    //5) autorul care apare de cele mai multe ori => daca apar mai multi de un nr maxim de ori => afis pe primul
-
     //6) studentul care e inscris la cele mai multe cursuri
     public Student studentWithTheMostCourses(){
 

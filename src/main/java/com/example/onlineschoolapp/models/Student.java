@@ -55,6 +55,13 @@ public class Student {
     private List<Course> courses = new ArrayList<>();
 
 
+    public Student(Long id, String firstName, String lastName, String email, Double age) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.age = age;
+    }
 
     public Student(String firstName, String lastName, String email, Double age) {
         this.firstName = firstName;

@@ -1,5 +1,6 @@
 package com.example.onlineschoolapp.services;
 
+import com.example.onlineschoolapp.dto.BookDTO;
 import com.example.onlineschoolapp.dto.StudentDTO;
 import com.example.onlineschoolapp.exceptions.*;
 import com.example.onlineschoolapp.models.Book;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -164,6 +166,29 @@ public class StudentServiceTest {
 
         doReturn(Optional.of(student)).when(studentRepo).getStudentByEmail(student.getEmail());
         assertThrows(StudentEmailAlreadyExistsException.class, () -> service.addStudent(studentDTO));
+    }
+
+
+    //eroare
+    @Test
+    public void shouldAddBookToStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        BookDTO book = new BookDTO();
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
+        doReturn(Optional.empty()).when(bookRepo).getBookByName(book.getName());
+        service.addBookToStudent(student.getId(), book);
+        then(studentRepo).should().save(studentArgumentCaptor.capture());
+        assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(student.getId(), student.getFirstName(), student.getLastName(), student.getEmail(), student.getAge()));
     }
 }
 
