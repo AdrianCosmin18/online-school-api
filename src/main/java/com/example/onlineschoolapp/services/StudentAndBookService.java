@@ -77,7 +77,7 @@ public class StudentAndBookService {
 
     public void addBookToStudent(long id, BookDTO book){
         Optional<Student> student = studentRepo.findById(id);
-        if (student.equals(Optional.empty())){
+        if (!student.isPresent()){
             throw new StudentNotFoundById(id);
         }
         else {

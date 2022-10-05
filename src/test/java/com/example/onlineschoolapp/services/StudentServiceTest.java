@@ -190,6 +190,152 @@ public class StudentServiceTest {
         then(studentRepo).should().save(studentArgumentCaptor.capture());
         assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(student.getId(), student.getFirstName(), student.getLastName(), student.getEmail(), student.getAge()));
     }
+
+    @Test
+    public void shouldThrowException1AddBookToStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        BookDTO book = new BookDTO();
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.empty()).when(studentRepo).findById(student.getId());
+        assertThrows(StudentNotFoundById.class, () -> service.addBookToStudent(1l, book));
+    }
+
+    @Test
+    public void shouldThrowException2AddBookToStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        BookDTO book = new BookDTO();
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
+        doReturn(Optional.of(book)).when(bookRepo).getBookByName(book.getName());
+        assertThrows(BookNameAlreadyExistsException.class, () -> service.addBookToStudent(1l, book));
+    }
+
+    @Test
+    public void shouldDeleteBookFromStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        Book book = new Book();
+        book.setId(10L);
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
+        doReturn(Optional.of(book)).when(bookRepo).findById(book.getId());
+        service.deleteBookFromStudent(student.getId(), book.getId());
+        then(studentRepo).should().save(studentArgumentCaptor.capture());
+        assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(student.getId(), student.getFirstName(), student.getLastName(), student.getEmail(), student.getAge()));
+    }
+
+    @Test
+    void shouldThrowException1DeleteBookFromStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        Book book = new Book();
+        book.setId(1l);
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.of(book)).when(bookRepo).findById(1l);
+        doReturn(Optional.empty()).when(studentRepo).findById(student.getId());
+        assertThrows(StudentNotFoundById.class, () -> service.deleteBookFromStudent(student.getId(), book.getId()));
+    }
+
+    @Test
+    void shouldThrowException2DeleteBookFromStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        Book book = new Book();
+        book.setId(1l);
+        book.setName("LOTR1");
+        book.setCreatedAt(LocalDate.parse("2020-09-20"));
+
+        doReturn(Optional.empty()).when(bookRepo).findById(1l);
+        assertThrows(BookNotFoundById.class, () -> service.deleteBookFromStudent(1l, book.getId()));
+    }
+
+    @Test
+    void shouldDeleteStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
+        service.deleteStudent(student.getId());
+        then(studentRepo).should().deleteById(1l);
+    }
+
+    @Test
+    void shouldThrowExceptionDeleteStudent(){
+
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        doReturn(Optional.empty()).when(studentRepo).findById(student.getId());
+        assertThrows(StudentNotFoundById.class, () -> service.deleteStudent(1l));
+    }
+
+    //eroare
+    @Test
+    void shouldUpdateStudent(){
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Cosmin");
+        student.setLastName("Nedelcu");
+        student.setAge(21d);
+        student.setEmail("cosmin_ndlc@yahoo.com");
+
+        StudentDTO studentDTO = new StudentDTO("Adrian Cosmin", "Nedelcu", "cosmin...", 22d);
+        doReturn(Optional.of(student)).when(studentRepo).getStudentByEmail(student.getEmail());
+        service.updateStudent(student.getId(), studentDTO);
+        then(studentRepo).should().save(studentArgumentCaptor.capture());
+        assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge()));
+    }
+
+
 }
 
 
