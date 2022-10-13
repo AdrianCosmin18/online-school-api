@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.averagingDouble;
 
@@ -111,17 +112,16 @@ public class StudentAndBookService {
         studentRepo.deleteById(id);
     }
 
-    public void updateStudent(long id, StudentDTO student){
-        studentRepo.findById(id).map(s -> {
-            s.setFirstName(student.getFirstName());
-            s.setLastName(student.getLastName());
-            Optional<Student> existingStudent = studentRepo.getStudentByEmail(student.getEmail());
-            if (!existingStudent.equals(Optional.empty()))
-                throw new StudentEmailAlreadyExistsException(student.getEmail());
-            s.setEmail(student.getEmail());
-            s.setAge(student.getAge());
-            return studentRepo.save(s);
-        }).orElseThrow(()->new StudentNotFoundById(id));
+    public void updateStudent(long id, StudentDTO studentDTO){
+
+        if (!studentRepo.findById(id).isPresent()){
+            throw new StudentNotFoundById(id);
+        }
+
+        if (studentRepo.getStudentByEmail(studentDTO.getEmail()).isPresent()){
+            throw new StudentEmailAlreadyExistsException(studentDTO.getEmail());
+        }
+        studentRepo.updateById(id, studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge());
     }
 
     public void updateBook(long id, BookDTO book){
@@ -147,7 +147,7 @@ public class StudentAndBookService {
         }
 
         //daca exista deja un curs cu acelasi nume in orarul lui
-        if(student.get().getCourses().stream().filter(c -> c.getName().equals(courseName)).toList().size() > 0){
+        if(student.get().getCourses().stream().filter(c -> c.getName().equals(courseName)).collect(Collectors.toList()).size() > 0){
             throw new AlreadyHasThisCourseException();
         }
 
@@ -273,7 +273,6 @@ public class StudentAndBookService {
     }
 
     //4) studentul cu cele mai putine carti
-    //cum fac direct pe jpql
     //studentul cu cele mai putin carti dar mai mult decat una
     public Student studentWithTheFewestBooks(){
 

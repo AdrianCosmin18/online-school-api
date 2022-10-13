@@ -40,6 +40,8 @@ public class StudentServiceTest {
     @Mock
     private BookRepo bookRepo;
 
+
+
     @InjectMocks
     private StudentAndBookService service;
 
@@ -169,7 +171,6 @@ public class StudentServiceTest {
     }
 
 
-    //eroare
     @Test
     public void shouldAddBookToStudent(){
 
@@ -187,6 +188,7 @@ public class StudentServiceTest {
         doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
         doReturn(Optional.empty()).when(bookRepo).getBookByName(book.getName());
         service.addBookToStudent(student.getId(), book);
+
         then(studentRepo).should().save(studentArgumentCaptor.capture());
         assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(student.getId(), student.getFirstName(), student.getLastName(), student.getEmail(), student.getAge()));
     }
@@ -318,7 +320,6 @@ public class StudentServiceTest {
         assertThrows(StudentNotFoundById.class, () -> service.deleteStudent(1l));
     }
 
-    //eroare
     @Test
     void shouldUpdateStudent(){
         Student student = new Student();
@@ -328,14 +329,101 @@ public class StudentServiceTest {
         student.setAge(21d);
         student.setEmail("cosmin_ndlc@yahoo.com");
 
-        StudentDTO studentDTO = new StudentDTO("Adrian Cosmin", "Nedelcu", "cosmin...", 22d);
-        doReturn(Optional.of(student)).when(studentRepo).getStudentByEmail(student.getEmail());
+        StudentDTO studentDTO = new StudentDTO("Adrian Cosmin", "Nedelcu", "cosmin_ndlc@yahoo.com", 22d);
+        doReturn(Optional.of(student)).when(studentRepo).findById(student.getId());
+        doReturn(Optional.empty()).when(studentRepo).getStudentByEmail(student.getEmail());
         service.updateStudent(student.getId(), studentDTO);
-        then(studentRepo).should().save(studentArgumentCaptor.capture());
-        assertThat(studentArgumentCaptor.getValue()).isEqualTo(new Student(studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge()));
+        then(studentRepo).should().updateById(1L, studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge());
     }
 
 
+    @Test
+    void shouldGetMostPopularCourse(){
+
+        Faker f = new Faker();
+
+        List<Student> students = new ArrayList<>();
+        for (int i = 0 ; i < 3; i++){
+            students.add(new Student((long) i, f.name().firstName(), f.name().lastName(), f.name() + "@yahoo.com", (double) f.number().numberBetween(20,50)));
+        }
+
+        List<Course> courses = new ArrayList<>();
+        courses.add(Course.builder().id(0L).name("IA").department("info").build());
+        courses.add(Course.builder().id(1L).name("IS").department("info").build());
+        courses.add(Course.builder().id(2L).name("SGBD").department("info").build());
+        courses.add(Course.builder().id(3L).name("Geometry").department("math").build());
+
+        students.get(0).addCourse(courses.get(0));//IA
+        students.get(1).addCourse(courses.get(1));//IS
+        students.get(2).addCourse(courses.get(2));//SGBD
+        students.get(0).addCourse(courses.get(3));//Geo
+        students.get(1).addCourse(courses.get(1));//IS
+        students.get(2).addCourse(courses.get(2));//SGBD
+        students.get(1).addCourse(courses.get(3));//Geo
+        students.get(2).addCourse(courses.get(1));//IS
+
+        doReturn(students).when(studentRepo).findAll();
+        assertThat(service.mostPopularCourse().getName()).isEqualTo("IS");
+    }
+
+    @Test
+    void shouldThrowExceptionMostPopularCourse(){
+
+        List<Student> students = new ArrayList<>();
+        doReturn(students).when(studentRepo).findAll();
+        assertThrows(NoStudentsException.class, () -> service.getAllStudents());
+    }
+
+    @Test
+    void shouldReturnMostUnpopularCourse(){
+
+        Faker f = new Faker();
+
+        List<Student> students = new ArrayList<>();
+        for (int i = 0 ; i < 3; i++){
+            students.add(new Student((long) i, f.name().firstName(), f.name().lastName(), f.name() + "@yahoo.com", (double) f.number().numberBetween(20,50)));
+        }
+
+        List<Course> courses = new ArrayList<>();
+        courses.add(Course.builder().id(0L).name("IA").department("info").build());
+        courses.add(Course.builder().id(1L).name("IS").department("info").build());
+        courses.add(Course.builder().id(2L).name("SGBD").department("info").build());
+        courses.add(Course.builder().id(3L).name("Geometry").department("math").build());
+
+        students.get(0).addCourse(courses.get(0));//IA
+        students.get(1).addCourse(courses.get(1));//IS
+        students.get(2).addCourse(courses.get(2));//SGBD
+        students.get(0).addCourse(courses.get(3));//Geo
+        students.get(1).addCourse(courses.get(1));//IS
+        students.get(2).addCourse(courses.get(2));//SGBD
+        students.get(1).addCourse(courses.get(3));//Geo
+        students.get(2).addCourse(courses.get(1));//IS
+
+        doReturn(students).when(studentRepo).findAll();
+        assertThat(service.mostUnpopularCourse()).isEqualTo(Course.builder().id(0L).name("IA").department("info").build());
+    }
+
+    @Test
+    void shouldThrowExceptionMostUnpopularCourse(){
+
+        List<Student> students = new ArrayList<>();
+        doReturn(students).when(studentRepo).findAll();
+        assertThrows(NoStudentsException.class, () -> service.getAllStudents());
+    }
+
+//    @Test
+//    void shouldGetStudentWithTheFewestBooks(){
+//
+//        Faker f = new Faker();
+//
+//        List<Student> students = new ArrayList<>();
+//        for (int i = 0 ; i < 3; i++){
+//            students.add(new Student((long) i, f.name().firstName(), f.name().lastName(), f.name() + "@yahoo.com", (double) f.number().numberBetween(20,50)));
+//        }
+//
+//        List<Book> books = new ArrayList<>();
+//        books.add(Book.builder()..build());
+//    }
 }
 
 

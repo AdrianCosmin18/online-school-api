@@ -82,11 +82,6 @@ public class CourseService {
         else{
             courseRepo.updateCourseById(c.getName(), c.getDepartment(), id);
         }
-//        this.courseRepo.findById(id).map(course -> {
-//            course.setName(c.getName());
-//            course.setDepartment(c.getDepartment());
-//            return courseRepo.save(course);
-//        }).orElseThrow(()->new CourseNotFoundById(id));
     }
 }
 
