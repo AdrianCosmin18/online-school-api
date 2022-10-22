@@ -411,19 +411,6 @@ public class StudentServiceTest {
         assertThrows(NoStudentsException.class, () -> service.getAllStudents());
     }
 
-//    @Test
-//    void shouldGetStudentWithTheFewestBooks(){
-//
-//        Faker f = new Faker();
-//
-//        List<Student> students = new ArrayList<>();
-//        for (int i = 0 ; i < 3; i++){
-//            students.add(new Student((long) i, f.name().firstName(), f.name().lastName(), f.name() + "@yahoo.com", (double) f.number().numberBetween(20,50)));
-//        }
-//
-//        List<Book> books = new ArrayList<>();
-//        books.add(Book.builder()..build());
-//    }
 }
 
 
