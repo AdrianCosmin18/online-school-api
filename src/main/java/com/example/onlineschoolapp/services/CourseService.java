@@ -34,14 +34,12 @@ public class CourseService {
         return  courses;
     }
 
-
     public Course getCourseById(long id){
         Optional<Course> course = courseRepo.findById(id);
         if (course.isPresent())
             return course.get();
         throw new CourseNotFoundById(id);
     }
-
 
     public void addCourse(CourseDTO c){
 

@@ -33,7 +33,6 @@ class CourseServiceTest {
     @Mock
     private CourseRepo courseRepo;
 
-
     @InjectMocks
     private  CourseService courseService;
 

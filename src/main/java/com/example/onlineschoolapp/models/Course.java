@@ -52,7 +52,6 @@ public class Course {
         text += "{id:" + id + "\n";
         text += "name:" + name + "\n";
         text += "department:" + department + "}";
-
         return text;
     }
 
