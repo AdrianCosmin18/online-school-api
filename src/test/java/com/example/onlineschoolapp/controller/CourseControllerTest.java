@@ -102,8 +102,6 @@ public class CourseControllerTest {
         ResultActions res= this.restMockMVC.perform(MockMvcRequestBuilders.get("/online-school/api/v1/courses/course-by-id/1")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-
-        System.out.println(res.andReturn().getResponse());
     }
 
     @Test
@@ -182,6 +180,17 @@ public class CourseControllerTest {
         this.restMockMVC.perform(MockMvcRequestBuilders.put("/online-school/api/v1/courses/update-course-by-id/1")
                 .contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(courseDTO1)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdateCourseByIdException() throws Exception{
+
+        CourseDTO courseDTO1 = CourseDTO.builder().name("Advanced Geometry 2").department("Math-Science").build();
+        doThrow(CourseNotFoundById.class).when(courseService).updateCourseById(courseDTO1, 1);
+        this.restMockMVC.perform(MockMvcRequestBuilders.put("/online-school/api/v1/courses/update-course-by-id/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(courseDTO1)))
+                .andExpect(status().isBadRequest());
     }
 
 

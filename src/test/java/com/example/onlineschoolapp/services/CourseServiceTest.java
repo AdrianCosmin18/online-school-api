@@ -102,7 +102,6 @@ class CourseServiceTest {
 
     @Test
     public void shouldThrowExceptionAddCourse(){
-
         CourseDTO courseDTO = CourseDTO.builder().name("alg fundam").department("info").build();
 
         doReturn(Optional.of(courseDTO)).when(courseRepo).getCourseByName(courseDTO.getName());
