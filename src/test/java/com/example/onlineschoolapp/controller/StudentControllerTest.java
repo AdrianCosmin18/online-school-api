@@ -1,10 +1,8 @@
 package com.example.onlineschoolapp.controller;
 
+import com.example.onlineschoolapp.dto.BookDTO;
 import com.example.onlineschoolapp.dto.StudentDTO;
-import com.example.onlineschoolapp.exceptions.BookNotFoundById;
-import com.example.onlineschoolapp.exceptions.NoBooksFoundException;
-import com.example.onlineschoolapp.exceptions.NoStudentsException;
-import com.example.onlineschoolapp.exceptions.StudentNotFoundById;
+import com.example.onlineschoolapp.exceptions.*;
 import com.example.onlineschoolapp.models.Book;
 import com.example.onlineschoolapp.models.Student;
 import com.example.onlineschoolapp.services.StudentAndBookService;
@@ -27,7 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -131,14 +128,56 @@ public class StudentControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    //201 error
     @Test
     void shouldAddStudent() throws Exception{
         StudentDTO studentDTO = StudentDTO.builder().firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
         this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-student")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldThrowExceptionAddStudent() throws Exception{
+        StudentDTO studentDTO = StudentDTO.builder().firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        doThrow(StudentEmailAlreadyExistsException.class).when(service).addStudent(studentDTO);
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-student")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldAddBookToStudent() throws Exception{
+        BookDTO b = BookDTO.builder().name("GOT").build();
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-book-to-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldThrowException1AddBookToStudent() throws Exception{
+        BookDTO b = BookDTO.builder().name("GOT").build();
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        doThrow(StudentNotFoundById.class).when(service).addBookToStudent(student.getId(), b);
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-book-to-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldThrowException2AddBookToStudent() throws Exception{
+
+        BookDTO b = BookDTO.builder().name("GOT").build();
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        doThrow(BookNameAlreadyExistsException.class).when(service).addBookToStudent(student.getId(), b);
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-book-to-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isBadRequest());
     }
 
 
