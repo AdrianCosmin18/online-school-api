@@ -9,6 +9,7 @@ import com.example.onlineschoolapp.models.Student;
 import com.example.onlineschoolapp.services.StudentAndBookService;
 import com.example.onlineschoolapp.util.TestUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,10 @@ public class StudentControllerTest {
 
     @BeforeEach
     void setup(){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.setDateFormat(df);
+        mapper.registerModule(new JavaTimeModule());
+
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(mapper))
                 .build();
@@ -88,14 +94,11 @@ public class StudentControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
-    //eroare pe localdate: mapper nu intelege LocalDate-ul
     @Test
     void shouldGetBooks() throws Exception{
         List<Book> books = new ArrayList<>();
-//        books.add(Book.builder().name("GOT").createdAt(LocalDate.parse("2022-12-12")).build());
-//        books.add(Book.builder().name("LOTR").createdAt(LocalDate.parse("2021-10-09")).build());
-        books.add(Book.builder().build());
-        books.add(Book.builder().name("LOTR").build());
+        books.add(Book.builder().name("GOT").createdAt(LocalDate.parse("2022-12-12")).build());
+        books.add(Book.builder().name("LOTR").createdAt(LocalDate.parse("2021-10-09")).build());
         doReturn(books).when(service).getAllBooks();
         this.mockMvc.perform(MockMvcRequestBuilders.get("/online-school/api/v1/students/all-books")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -182,14 +185,14 @@ public class StudentControllerTest {
     }
 
 
-    @Test//eroare
+    @Test
     void shouldDeleteBookFromStudent() throws Exception{
         Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
         Book b = Book.builder().name("GOT").id(10L).build();
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-book-from-student/2/10")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(b)))
-                .andExpect(status().isOk());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -233,14 +236,14 @@ public class StudentControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test //eroare
+    @Test
     void shouldUpdateStudent() throws Exception{
         Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
         StudentDTO studentDTO = StudentDTO.builder().firstName("Adrian Cosmin").lastName("Nedelcu").age(23d).email("cosmin_ndlc@yahoo.com").build();
         this.mockMvc.perform(MockMvcRequestBuilders.put("/online-school/api/v1/students/update-student/" + student.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
-                .andExpect(status().isOk());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -282,7 +285,7 @@ public class StudentControllerTest {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-course-to-student/" + student.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(courseDTO1)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
 
 

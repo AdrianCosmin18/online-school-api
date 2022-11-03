@@ -336,6 +336,9 @@ public class StudentServiceTest {
         then(studentRepo).should().updateById(1L, studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge());
     }
 
+    //updateBook
+    //addCourseToStudent
+    //deleteCourseFromStudent
 
     @Test
     void shouldGetMostPopularCourse(){
