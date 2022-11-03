@@ -184,22 +184,4 @@ public class StudentController {
         return new ResponseEntity<>(this.service.getBookNumberRentedInAnYear(year, studentId), HttpStatus.OK);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

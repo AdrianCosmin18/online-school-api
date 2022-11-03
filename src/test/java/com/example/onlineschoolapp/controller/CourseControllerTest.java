@@ -129,7 +129,6 @@ public class CourseControllerTest {
     void testDeleteCourseById() throws Exception{
 
         Course course = Course.builder().id(1L).department("Math").name("Calculations").build();
-
         this.restMockMVC.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/courses/delete-by-id/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(course)))

@@ -1,6 +1,7 @@
 package com.example.onlineschoolapp.controller;
 
 import com.example.onlineschoolapp.dto.BookDTO;
+import com.example.onlineschoolapp.dto.CourseDTO;
 import com.example.onlineschoolapp.dto.StudentDTO;
 import com.example.onlineschoolapp.exceptions.*;
 import com.example.onlineschoolapp.models.Book;
@@ -179,6 +180,112 @@ public class StudentControllerTest {
                 .content(TestUtil.convertObjectToJsonBytes(b)))
                 .andExpect(status().isBadRequest());
     }
+
+
+    @Test//eroare
+    void shouldDeleteBookFromStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        Book b = Book.builder().name("GOT").id(10L).build();
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-book-from-student/2/10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldThrowException1DeleteBookFromStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        Book b = Book.builder().name("GOT").id(10L).build();
+        doThrow(BookNotFoundById.class).when(service).deleteBookFromStudent(student.getId(), b.getId());
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-book-from-student/2/10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldThrowException2DeleteBookFromStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        Book b = Book.builder().name("GOT").id(10L).build();
+        doThrow(StudentNotFoundById.class).when(service).deleteBookFromStudent(student.getId(), b.getId());
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-book-from-student/2/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtil.convertObjectToJsonBytes(b)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldDeleteStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-student/"+student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(student)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldThrowExceptionDeleteStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        doThrow(StudentNotFoundById.class).when(service).deleteStudent(student.getId());
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/online-school/api/v1/students/delete-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(student)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test //eroare
+    void shouldUpdateStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        StudentDTO studentDTO = StudentDTO.builder().firstName("Adrian Cosmin").lastName("Nedelcu").age(23d).email("cosmin_ndlc@yahoo.com").build();
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/online-school/api/v1/students/update-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldThrowException1UpdateStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        StudentDTO studentDTO = StudentDTO.builder().firstName("Adrian Cosmin").lastName("Nedelcu").age(23d).email("cosmin_ndlc@yahoo.com").build();
+        doThrow(StudentNotFoundById.class).when(service).updateStudent(student.getId(), studentDTO);
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/online-school/api/v1/students/update-student/" + student.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldThrowException2UpdateStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        StudentDTO studentDTO = StudentDTO.builder().firstName("Adrian Cosmin").lastName("Nedelcu").age(23d).email("cosmin_ndlc@yahoo.com").build();
+        doThrow(StudentEmailAlreadyExistsException.class).when(service).updateStudent(student.getId(), studentDTO);
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/online-school/api/v1/students/update-student/" + student.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtil.convertObjectToJsonBytes(studentDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldUpdateBook() throws Exception{
+        Book b = Book.builder().name("GOT").id(10L).build();
+        BookDTO bookDTO = BookDTO.builder().name("LOTR").build();
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/online-school/api/v1/students/update-book/" + b.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(bookDTO)))
+                .andExpect(status().isOk());
+    }
+
+    @Test //eroare
+    void shouldAddCourseToStudent() throws Exception{
+        Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
+        CourseDTO courseDTO1 = CourseDTO.builder().name("Advanced Geometry 2").department("Math-Science").build();
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-course-to-student/" + student.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(courseDTO1)))
+                .andExpect(status().isCreated());
+    }
+
+
 
 
 }
