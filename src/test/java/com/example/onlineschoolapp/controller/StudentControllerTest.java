@@ -278,7 +278,7 @@ public class StudentControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test //eroare
+    @Test // eroare => trebuie facut test unitar in service
     void shouldAddCourseToStudent() throws Exception{
         Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
         CourseDTO courseDTO1 = CourseDTO.builder().name("Advanced Geometry 2").department("Math-Science").build();
