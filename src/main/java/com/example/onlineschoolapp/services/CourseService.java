@@ -8,7 +8,9 @@ import com.example.onlineschoolapp.exceptions.NoCourseException;
 import com.example.onlineschoolapp.models.Course;
 import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
 import java.util.List;
@@ -41,6 +43,9 @@ public class CourseService {
         throw new CourseNotFoundById(id);
     }
 
+
+    @Modifying
+    @Transactional
     public void addCourse(CourseDTO c){
 
         Optional<Course> existingCourse = courseRepo.getCourseByName(c.getName());

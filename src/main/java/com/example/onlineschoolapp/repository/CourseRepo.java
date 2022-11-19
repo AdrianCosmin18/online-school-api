@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface CourseRepo extends JpaRepository<Course, Long> {
 
-    @Query("select c from Course c where c.name = :name")
+    @Query("select c from Course c where c.name = ?1")
     Optional<Course> getCourseByName(String name);
 
     Optional<List<Course>> getCoursesByDepartment(String department);

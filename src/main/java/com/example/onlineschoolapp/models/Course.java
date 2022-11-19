@@ -25,7 +25,8 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_seq")
     private Long id;
 
-    @NotEmpty
+
+
     @Column(name = "name", columnDefinition = "varchar(50)")
     private String name;
 

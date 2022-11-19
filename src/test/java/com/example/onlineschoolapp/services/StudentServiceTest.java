@@ -1,6 +1,7 @@
 package com.example.onlineschoolapp.services;
 
 import com.example.onlineschoolapp.dto.BookDTO;
+import com.example.onlineschoolapp.dto.CourseDTO;
 import com.example.onlineschoolapp.dto.StudentDTO;
 import com.example.onlineschoolapp.exceptions.*;
 import com.example.onlineschoolapp.models.Book;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
@@ -336,8 +337,46 @@ public class StudentServiceTest {
         then(studentRepo).should().updateById(1L, studentDTO.getFirstName(), studentDTO.getLastName(), studentDTO.getEmail(), studentDTO.getAge());
     }
 
-    //updateBook2312312312
+    //updateBook
     //addCourseToStudent
+    @Test
+    void shouldAddCourseToStudent(){
+        List<Course> courses = new ArrayList<>();
+        courses.add(Course.builder().id(1l).name("SD").department("data science").build());
+        Student s = Student.builder().id(1l).lastName("Nedelcu").firstName("Cosmin").age(22d).email("cosmin_ndlc@yahoo.com").build();
+        Course c = Course.builder().id(10l).department("Math").name("Geometry").build();
+        s.setCourses(courses);
+        doReturn(Optional.of(c)).when(courseRepo).getCourseByName(c.getName());
+        doReturn(Optional.of(s)).when(studentRepo).findById(s.getId());
+        service.addCourseToStudent(s.getId(), c.getName());
+        then(studentRepo).should().save(s);
+    }
+
+    @Test
+    void shouldThrowException1AddCourseToStudent(){
+        List<Course> courses = new ArrayList<>();
+        courses.add(Course.builder().id(1l).name("SD").department("data science").build());
+        Student s = Student.builder().id(1l).lastName("Nedelcu").firstName("Cosmin").age(22d).email("cosmin_ndlc@yahoo.com").build();
+        Course c = Course.builder().id(10l).department("Math").name("Geometry").build();
+        s.setCourses(courses);
+
+        doReturn(Optional.empty()).when(courseRepo).getCourseByName(c.getName());
+        doReturn(Optional.of(s)).when(studentRepo).findById(s.getId());
+        assertThrows(CourseNotFoundByName.class, ()-> service.addCourseToStudent(s.getId(), c.getName()));
+    }
+
+    @Test
+    void shouldThrowExeception2AddCourseToStudent(){
+        List<Course> courses = new ArrayList<>();
+        courses.add(Course.builder().id(1l).name("SD").department("data science").build());
+        Student s = Student.builder().id(1l).lastName("Nedelcu").firstName("Cosmin").age(22d).email("cosmin_ndlc@yahoo.com").build();
+        Course c = Course.builder().id(10l).department("Math").name("Geometry").build();
+        s.setCourses(courses);
+
+        doReturn(Optional.of(c)).when(courseRepo).getCourseByName(c.getName());
+        doReturn(Optional.empty()).when(studentRepo).findById(s.getId());
+        assertThrows(StudentNotFoundById.class, () -> service.addCourseToStudent(s.getId(), c.getName()));
+    }
     //deleteCourseFromStudent
 
     @Test
