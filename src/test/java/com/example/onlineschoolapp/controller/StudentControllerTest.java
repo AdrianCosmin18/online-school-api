@@ -158,7 +158,7 @@ public class StudentControllerTest {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-book-to-student/" + student.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(b)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -278,17 +278,15 @@ public class StudentControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test // eroare => trebuie facut test unitar in service
+    @Test//eroare trebuie modificat
     void shouldAddCourseToStudent() throws Exception{
         Student student = Student.builder().id(2L).firstName("Cosmin").lastName("Nedelcu").age(22D).email("cosmin1304@gmail.com").build();
         CourseDTO courseDTO1 = CourseDTO.builder().name("Advanced Geometry 2").department("Math-Science").build();
         this.mockMvc.perform(MockMvcRequestBuilders.post("/online-school/api/v1/students/add-course-to-student/" + student.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtil.convertObjectToJsonBytes(courseDTO1)))
+                .content(TestUtil.convertObjectToJsonBytes(courseDTO1.getName())))
                 .andExpect(status().isOk());
     }
-
-
 
 
 }
