@@ -11,6 +11,7 @@ import com.example.onlineschoolapp.repository.CourseRepo;
 import com.example.onlineschoolapp.repository.StudentRepo;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,24 +72,21 @@ public class StudentAndBookService {
 
     public void addStudent(StudentDTO s){
         Optional<Student> existingStudent = studentRepo.getStudentByEmail(s.getEmail());
-        if (existingStudent.isPresent())
+        if(existingStudent.isPresent()){
             throw new StudentEmailAlreadyExistsException(s.getEmail());
-        studentRepo.save(new Student(s.getFirstName(), s.getLastName(), s.getEmail(), s.getAge()));
+        }
+        studentRepo.saveAndFlush(new Student(s.getFirstName(), s.getLastName(), s.getEmail(), s.getAge()));
     }
 
     public void addBookToStudent(long id, BookDTO book){
-        Optional<Student> student = studentRepo.findById(id);
-        if (!student.isPresent()){
-            throw new StudentNotFoundById(id);
+        Student student = studentRepo.findById(id).orElseThrow(() -> new StudentNotFoundById(id));
+
+        Optional<Book> existingBook = bookRepo.getBookByName(book.getName());
+        if (!existingBook.equals(Optional.empty())){
+            throw new BookNameAlreadyExistsException();
         }
-        else {
-            Optional<Book> existingBook = bookRepo.getBookByName(book.getName());
-            if (!existingBook.equals(Optional.empty())){
-                throw new BookNameAlreadyExistsException();
-            }
-            student.get().addBook(new Book(book.getName(), book.getCreatedAt()));
-            studentRepo.save(student.get());
-        }
+        student.addBook(new Book(book.getName(), book.getCreatedAt()));
+        studentRepo.saveAndFlush(student);
     }
 
     public void deleteBookFromStudent(long studentId, long bookId){
@@ -137,10 +135,9 @@ public class StudentAndBookService {
     }
 
     public void addCourseToStudent(long id, String courseName){
-        Optional<Course> course = courseRepo.getCourseByName(courseName);
-        if (course.equals(Optional.empty())){
-            throw new CourseNotFoundByName(courseName);
-        }
+
+        Course course = courseRepo.getCourseByName(courseName).orElseThrow(() -> new CourseNotFoundByName(courseName));
+
         Optional<Student> student = studentRepo.findById(id);
         if (student.equals(Optional.empty())){
             throw new StudentNotFoundById(id);
@@ -151,24 +148,22 @@ public class StudentAndBookService {
             throw new AlreadyHasThisCourseException();
         }
 
-        student.get().addCourse(course.get());
+        student.get().addCourse(course);
         studentRepo.save(student.get());
     }
 
     public void deleteCourseFromStudent(long studentId, String courseName){
-        Optional<Student> student = studentRepo.findById(studentId);
-        if (student.equals(Optional.empty())){
-            throw new StudentNotFoundById(studentId);
-        }
-        Optional<Course> course = courseRepo.getCourseByName(courseName);
-        if (course.equals(Optional.empty())){
-            throw new BookNotFoundByName(courseName);
-        }
-        List<Course> studentCourses = student.get().getCourses();
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundById(studentId));
+
+        Course course = courseRepo.getCourseByName(courseName)
+                .orElseThrow(() -> new CourseNotFoundByName(courseName));
+
+        List<Course> studentCourses = student.getCourses();
         System.out.println(studentCourses);
         if (studentCourses.stream().anyMatch(c -> c.getName().equals(courseName))){
-            student.get().removeCourse(course.get());
-            studentRepo.save(student.get());
+            student.removeCourse(course);
+            studentRepo.save(student);
         }
         else{
             throw new StudentNotHavingCourseException();
@@ -177,7 +172,7 @@ public class StudentAndBookService {
 
     //1) cursul cu cei mai multi studenti inscrisi la el
     //nu stiu cum sa o fac direct pe enrollment
-    public Course mostPopularCourse(){
+    public Set<Course> mostPopularCourse(){
 
         Map<Course, Integer> map = new HashMap<>();
         List<Student> students = getAllStudents();
@@ -200,21 +195,25 @@ public class StudentAndBookService {
             throw new NoEnrollToAnyCourseException();
         }
 
-        Course maxCourse = null;
+        HashSet<Course> hashSet = null;
         int maxValue = 0;
         for(Map.Entry<Course, Integer> entry : map.entrySet()){
             if(entry.getValue() > maxValue){
                 maxValue = entry.getValue();
-                maxCourse = entry.getKey();
+                hashSet = new HashSet<>();
+                hashSet.add(entry.getKey());
+            }
+            else if(entry.getValue() == maxValue){
+                hashSet.add(entry.getKey());
             }
         }
-        System.out.println( "MAXIMUM VALUE : " + maxValue);
-        return maxCourse;
+        System.out.println( "MAXIMUM VALUE : " + maxValue + '\n' + hashSet);
+        return hashSet;
     }
 
     //2) cursul cu cei mai putini inscrisi la el
     //nu stiu cum sa o fac direct pe enrollment
-    public Course mostUnpopularCourse(){
+    public Set<Course> mostUnpopularCourse(){
 
         Map<Course, Integer> map = new HashMap<>();
         List<Student> students = getAllStudents();
@@ -237,16 +236,22 @@ public class StudentAndBookService {
             throw new NoEnrollToAnyCourseException();
         }
 
+        HashSet<Course> hashSet = null;
         Course minCourse = null;
         int minValue = 99999;
         for(Map.Entry<Course, Integer> entry : map.entrySet()){
             if(entry.getValue() < minValue){
                 minValue = entry.getValue();
                 minCourse = entry.getKey();
+                hashSet = new HashSet<>();
+                hashSet.add(entry.getKey());
+            }
+            else if(entry.getValue() == minValue){
+                hashSet.add(entry.getKey());
             }
         }
-        System.out.println( "Minimum VALUE : " + minValue);
-        return minCourse;
+        System.out.println( "Minimum VALUE : " + minValue + '\n' + hashSet);
+        return hashSet;
     }
 
     //3) studentul care are cele mai multe carti
@@ -323,14 +328,12 @@ public class StudentAndBookService {
 
         List<Book> books = getAllBooks();
         if(books.size() == 0){
-
             throw new NoBooksFoundException("there is no book rented by any student");
         }
 
         Map<Integer, Integer> map = new HashMap<>();
         for(Book b : books){
             if (map.containsKey(b.getCreatedAt().getYear())){
-
                 map.put(b.getCreatedAt().getYear(), map.get(b.getCreatedAt().getYear()) + 1);
             }
             else{
@@ -348,7 +351,6 @@ public class StudentAndBookService {
                 maxValue = entry.getValue();
             }
         }
-
         return maxYear;
     }
 
@@ -391,11 +393,10 @@ public class StudentAndBookService {
     public Set<Student> getStudentsEnrolledToCourse(String courseName){
 
         Set<Student> students = new TreeSet<>(Comparator.comparing(Student::getLastName));
-        Optional<Course> course = courseRepo.getCourseByName(courseName);
-        if (course.equals(Optional.empty())){
-            throw new CourseNotFoundByName(courseName);
-        }
-        students.addAll(course.get().getStudents());
+        Course course = courseRepo.getCourseByName(courseName)
+                .orElseThrow(() -> new CourseNotFoundByName(courseName));
+
+        students.addAll(course.getStudents());
         return students;
     }
 
@@ -405,7 +406,6 @@ public class StudentAndBookService {
         Map<String, List<String>> map = new HashMap<>();
         List<Course> courses = courseRepo.findAll();
         if (courses.size() == 0){
-
             throw new NoCoursesFoundException();
         }
 
@@ -422,32 +422,42 @@ public class StudentAndBookService {
     // 11)care departament are cei mai multi studenti inscrisi
     public String getDepartmentWithMostEnrolledStudents(){
 
-        Map<String, Integer> departmentNumberStudentPair = new HashMap<>();
-
+        HashMap<String, HashSet<Student>> departmentPairStudents = new HashMap<>();
+        HashSet<Student> studentsSet;
         Map<String, List<String>> map = getDepartmentAndItsCourses();
         for(Map.Entry<String, List<String>> entry : map.entrySet()){
 
             List<String> courseNames = entry.getValue();
             for (String courseName: courseNames){
 
+                studentsSet = new HashSet<>();
                 Course course = courseRepo.getCourseByName(courseName).get();
-                if (!departmentNumberStudentPair.containsKey(course.getDepartment())){
-                    departmentNumberStudentPair.put(course.getDepartment(), course.getStudents().size());
+                if (!departmentPairStudents.containsKey(course.getDepartment())){
+
+                    for(Student s : course.getStudents()){
+                        studentsSet.add(s);
+                    }
+                    departmentPairStudents.put(course.getDepartment(), studentsSet);
                 }
                 else{
-                    departmentNumberStudentPair.put(course.getDepartment(), departmentNumberStudentPair.get(course.getDepartment()) + course.getStudents().size());
+                    for(Student s : course.getStudents()){
+                        studentsSet.add(s);
+                    }
+                    HashSet<Student> hashSet = departmentPairStudents.get(course.getDepartment());
+                    hashSet.addAll(studentsSet);
+                    departmentPairStudents.put(course.getDepartment(), hashSet);
                 }
             }
         }
 
-        System.out.println(departmentNumberStudentPair);
+        System.out.println(departmentPairStudents);
         String maxDepartment = "";
         int maxNumber = 0;
-        for(Map.Entry<String, Integer> entry : departmentNumberStudentPair.entrySet()){
+        for(Map.Entry<String, HashSet<Student>> entry : departmentPairStudents.entrySet()){
 
-            if (entry.getValue() > maxNumber){
+            if (entry.getValue().size() > maxNumber){
                 maxDepartment = entry.getKey();
-                maxNumber = entry.getValue();
+                maxNumber = entry.getValue().size();
             }
         }
 
@@ -457,28 +467,27 @@ public class StudentAndBookService {
     // 12)nr de studenti al unui departament (nume departament)
     public Integer getNumberStudentsOfAnDepartment(String department){
 
-        Optional<List<Course>> courses = courseRepo.getCoursesByDepartment(department);
-        if (courses.get().isEmpty()){
-            throw new CourseNotFoundByDepartment(department);
-        }
+        List<Course> courses = courseRepo.getCoursesByDepartment(department)
+                .orElseThrow(() -> new CourseNotFoundByDepartment(department));
 
-        int numberOfStudents = 0;
 
+        Set<Student> studentsSet = new HashSet<>();
         Map<String, List<String>> map = getDepartmentAndItsCourses();
         for(Map.Entry<String, List<String>> entry : map.entrySet()){
-
             if (entry.getKey().equals(department)){
 
                 List<String> coursesName = entry.getValue();
                 for (String courseName: coursesName){
 
                     Course c = courseRepo.getCourseByName(courseName).get();
-                    numberOfStudents += c.getStudents().size();
+                    for(Student s : c.getStudents()){
+                        studentsSet.add(s);
+                    }
                 }
                 break;
             }
         }
-        return numberOfStudents;
+        return studentsSet.size();
     }
 
 

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,13 +97,13 @@ public class StudentController {
 
     //1)
     @GetMapping("/get-course-with-most-enrollment-of-students")
-    public ResponseEntity<Course> getMostPopularCourse(){
-        return new ResponseEntity<>(service.mostPopularCourse(), HttpStatus.OK);
+    public ResponseEntity<Set<Course>> getMostPopularCourse(){
+        return new ResponseEntity<Set<Course>>(service.mostPopularCourse(), HttpStatus.OK);
     }
 
     //2)
     @GetMapping("/get-course-with-most-less-enrollment-of-students")
-    public ResponseEntity<Course> getMostUnpopularCourse(){
+    public ResponseEntity<Set<Course>> getMostUnpopularCourse(){
         return new ResponseEntity<>(service.mostUnpopularCourse(), HttpStatus.OK);
     }
 

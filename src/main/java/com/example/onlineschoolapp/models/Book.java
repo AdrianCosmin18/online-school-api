@@ -2,10 +2,12 @@ package com.example.onlineschoolapp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
@@ -31,15 +33,16 @@ public class Book {
     @JsonBackReference//nu mi va mai arata sutdentul
     private Student student;
 
-    @NotEmpty
+    @NotNull
     @Column(
             name = "book_name",
             columnDefinition = "varchar(50)"
     )
     private String name;
 
-    @NotBlank(message = "Local date is required")
+    @NotNull(message = "Local date is required")
     @Column(name = "created_at", columnDefinition = "varchar(50)")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private LocalDate createdAt;
 
     public Book(String name, LocalDate createdAt) {

@@ -12,6 +12,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +22,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Builder
 @Entity(name = "Student")
-@Table(name = "student", uniqueConstraints = {@UniqueConstraint(name = "email_unique", columnNames = "email")})
+@Table(name = "student")
 public class Student {
 
     @Id
@@ -35,9 +36,7 @@ public class Student {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @NotEmpty
-    @Email
-    @Column(name = "email",columnDefinition = "varchar(50)")
+    @Column(name = "email", length = 50, unique = true, nullable = false)
     private String email;
 
     @Column(name = "age", nullable = false)
